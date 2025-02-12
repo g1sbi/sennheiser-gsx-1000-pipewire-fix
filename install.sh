@@ -11,37 +11,30 @@ CONF_DIR="$SCRIPT_DIR/conf"
 
 check_root() {
   if [ "$EUID" -ne 0 ]; then
-    echo "This script requires root privileges. Please enter your password to continue."
     exec sudo "$0"
     exit
   fi
 }
 check_root
 
-# Configuration file
-if [ ! -f "$ALSA_PROFILE_SETS_DIR/$SENNHEISER_GSX_FILE" ]; then
-  echo "sennheiser.gsx not found in $ALSA_PROFILE_SETS_DIR."
+# Config file
+if [ -f "$CONF_DIR/$SENNHEISER_GSX_FILE" ]; then
+  echo "Copying sennheiser.gsx from $CONF_DIR to $ALSA_PROFILE_SETS_DIR..."
+  cp "$CONF_DIR/$SENNHEISER_GSX_FILE" "$ALSA_PROFILE_SETS_DIR/"
 
-  if [ -f "$CONF_DIR/$SENNHEISER_GSX_FILE" ]; then
-    echo "Copying sennheiser.gsx from $CONF_DIR to $ALSA_PROFILE_SETS_DIR..."
-    cp "$CONF_DIR/$SENNHEISER_GSX_FILE" "$ALSA_PROFILE_SETS_DIR/"
-
-    if [ -f "$ALSA_PROFILE_SETS_DIR/$SENNHEISER_GSX_FILE" ]; then
-      echo "sennheiser.gsx copied successfully."
-    else
-      echo "Failed to copy sennheiser.gsx. Please check permissions."
-      exit 1
-    fi
+  if [ -f "$ALSA_PROFILE_SETS_DIR/$SENNHEISER_GSX_FILE" ]; then
+    echo "sennheiser.gsx copied successfully."
   else
-    echo "sennheiser.gsx not found in $CONF_DIR. Please ensure the file exists in the conf folder."
+    echo "Failed to copy sennheiser.gsx. Please check permissions."
     exit 1
   fi
 else
-  echo "sennheiser.gsx already exists in $ALSA_PROFILE_SETS_DIR."
+  echo "sennheiser.gsx not found in $CONF_DIR. Please ensure the file exists in the conf folder."
+  exit 1
 fi
 
-# Create the udev rule
-echo "Creating udev rule to disable input functionality for Sennheiser GSX 1000..."
+# udev
+echo "Creating udev rule"
 cat <<EOF | tee "$UDEV_RULES_FILE" >/dev/null
 ACTION=="add", SUBSYSTEM=="input", ATTRS{idVendor}=="$VENDOR_ID", ATTRS{idProduct}=="$PRODUCT_ID", ENV{ID_INPUT}="0"
 EOF
@@ -63,5 +56,4 @@ else
   exit 1
 fi
 
-# Notify the user to reconnect the device
 echo "Please unplug and reconnect your Sennheiser GSX 1000 device for the changes to take effect."
