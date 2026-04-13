@@ -2,7 +2,8 @@
 
 # Variables
 VENDOR_ID="1395"
-PRODUCT_ID="00a0"
+PRODUCT_ID_GSX1000="00a0"
+PRODUCT_ID_GSX1200PRO="00a1"
 UDEV_RULES_FILE="/etc/udev/rules.d/99-sennheiser-gsx.rules"
 ALSA_PROFILE_SETS_DIR="/usr/share/alsa-card-profile/mixer/profile-sets"
 SENNHEISER_GSX_FILE="sennheiser-gsx.conf"
@@ -36,7 +37,8 @@ fi
 # udev
 echo "Creating udev rule"
 cat <<EOF | tee "$UDEV_RULES_FILE" >/dev/null
-ACTION=="add", SUBSYSTEM=="input", ATTRS{idVendor}=="$VENDOR_ID", ATTRS{idProduct}=="$PRODUCT_ID", ENV{ID_INPUT}="0"
+ACTION=="add", SUBSYSTEM=="input", ATTRS{idVendor}=="$VENDOR_ID", ATTRS{idProduct}=="$PRODUCT_ID_GSX1000", ENV{ID_INPUT}="0"
+ACTION=="add", SUBSYSTEM=="input", ATTRS{idVendor}=="$VENDOR_ID", ATTRS{idProduct}=="$PRODUCT_ID_GSX1200PRO", ENV{ID_INPUT}="0"
 EOF
 
 if [ -f "$UDEV_RULES_FILE" ]; then
@@ -56,4 +58,4 @@ else
   exit 1
 fi
 
-echo "Please unplug and reconnect your Sennheiser GSX 1000 device for the changes to take effect."
+echo "Please unplug and reconnect your Sennheiser GSX device for the changes to take effect."
